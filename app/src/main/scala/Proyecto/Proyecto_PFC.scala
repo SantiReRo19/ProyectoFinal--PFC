@@ -32,7 +32,7 @@ object Proyecto_PFC {
       (1 to tamano).map(_ => alfabeto(random.nextInt(alfabeto.length))).mkString
     }
 
-    def prc_mejorado(alfabeto: Seq[Char], tamano: Int, o: Oraculo): Seq[Char] = {
+    def reconstruirCadenaMejorado(alfabeto: Seq[Char], tamano: Int, o: Oraculo): Seq[Char] = {
       def subcaden_candidatas(k: Int, SC: Seq[Seq[Char]]): Seq[Seq[Char]] = {
         if (k > tamano) SC
         else {
@@ -52,7 +52,7 @@ object Proyecto_PFC {
       }
 
 
-      val cadenaM = prc_mejorado(alfabeto, 4, o)
+      val cadenaM = reconstruirCadenaMejorado(alfabeto, 4, o)
       println(s" mejorado Cadena encontrada: $cadenaM")
     }
 
