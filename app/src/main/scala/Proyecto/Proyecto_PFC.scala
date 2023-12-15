@@ -144,7 +144,7 @@ object Proyecto_PFC {
     val tiempoFinTurboMejorado = System.nanoTime()
     val tiempoTurboMejorado = (tiempoFinTurboMejorado - tiempoInicioTurboMejorado) / 1e6
     println(s"Tiempo de ejecucion: $tiempoTurboMejorado ms")
-
+/*
     val tiempoInicioPar = System.nanoTime()
     val ingenuoPar = reconstuirCadenaIngenuoPar(magnitud, o)
     println(s" Cadena por ingenuo par: $ingenuoPar")
@@ -158,8 +158,7 @@ object Proyecto_PFC {
     val tiempoFinMejoradoPar = System.nanoTime()
     val tiempoMejoradoPar = (tiempoFinMejoradoPar - tiempoInicioMejoradoPar) / 1e6
     println(s"Tiempo de ejecucion: $tiempoMejoradoPar ms")
-
-
+*/
   }
 
 }
