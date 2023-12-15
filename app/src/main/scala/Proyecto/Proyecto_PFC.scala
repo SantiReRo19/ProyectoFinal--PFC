@@ -1,13 +1,17 @@
 /**
- * Proyecto - Programación Funcional y Concurrente
+ * Proyecto Final - Programación Funcional y Concurrente
  * Autores: Carlos Alberto Camacho Castaño - 2160331
  *           Juan José Hernandez Arenas - 2259500
  *           Santiago Reyes Rodriguez - 2259738
- *           Carlos Alberto Camacho Castaño -2160331
  * Profesor: Carlos A Delgado
  */
 package Proyecto
 import scala.util.Random
+import scala.concurrent._
+import ExecutionContext.Implicits.global
+import common.task
+
+import scala.concurrent.duration.Duration
 object Proyecto_PFC {
 
 
@@ -82,6 +86,29 @@ object Proyecto_PFC {
     SC.find(_.length == magnitud).getOrElse(Seq())
 
   }
+
+/*  def reconstuirCadenaIngenuoPar(n: Int, o: Oraculo): Seq[Char] = {
+    val candidatas = task(secuenciaaleatoria(n)).join()
+    candidatas.find(o: Seq[Char] => Boolean).getOrElse(Seq())
+  }
+
+
+  def reconstruirCadenaMejoradoPar(n: Int, o: Oraculo): Seq[Char] = {
+    def reconstruirRecursivo(actual: Seq[Char], longitudActual: Int): Seq[Char] = {
+      if (longitudActual == n && o(actual)) {
+        actual
+      } else if (longitudActual < n) {
+        val tareas = task(alfabeto.map(letra => task(reconstruirRecursivo(actual :+ letra, longitudActual + 1)))).join
+        val siguientes = tareas.map(_.join())
+        siguientes
+      } else {
+        Seq()
+      }
+    }
+    reconstruirRecursivo(Seq(), 0)
+  }
+  */
+
   def main(args: Array[String]): Unit = {
     val magnitud = 4
     val SecRandom= secuenciaaleatoria(magnitud)
@@ -117,6 +144,21 @@ object Proyecto_PFC {
     val tiempoFinTurboMejorado = System.nanoTime()
     val tiempoTurboMejorado = (tiempoFinTurboMejorado - tiempoInicioTurboMejorado) / 1e6
     println(s"Tiempo de ejecucion: $tiempoTurboMejorado ms")
+
+    val tiempoInicioPar = System.nanoTime()
+    val ingenuoPar = reconstuirCadenaIngenuoPar(magnitud, o)
+    println(s" Cadena por ingenuo par: $ingenuoPar")
+    val tiempoFinPar = System.nanoTime()
+    val tiempoPar = (tiempoFinPar - tiempoInicioPar) / 1e6
+    println(s"Tiempo de ejecucion: $tiempoPar ms")
+
+    val tiempoInicioMejoradoPar = System.nanoTime()
+    val mejoradoPar = reconstruirCadenaMejoradoPar(magnitud, o)
+    println(s" Cadena por mejorado par: $mejoradoPar")
+    val tiempoFinMejoradoPar = System.nanoTime()
+    val tiempoMejoradoPar = (tiempoFinMejoradoPar - tiempoInicioMejoradoPar) / 1e6
+    println(s"Tiempo de ejecucion: $tiempoMejoradoPar ms")
+
 
   }
 
