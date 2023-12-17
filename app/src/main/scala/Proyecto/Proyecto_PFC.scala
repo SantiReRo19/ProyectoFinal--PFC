@@ -11,6 +11,7 @@ import scala.concurrent._
 import ExecutionContext.Implicits.global
 import common.{parallel, task}
 import org.scalameter.{Warmer, withWarmer}
+import java.util.concurrent.{ForkJoinPool, RecursiveTask}
 
 import scala.concurrent.duration.Duration
 object Proyecto_PFC {
@@ -105,6 +106,51 @@ object Proyecto_PFC {
 
   }
 
+  def reconstruirCadenaTurboMejoradoPar(alfabeto: Seq[Char], magnitud: Int, oraculo: Oraculo): Seq[Char] = {
+    class SubcadenasTask(m: Int, n: Int, SC: Seq[Seq[Char]], alfabeto: Seq[Char], magnitud: Int, oraculo: Oraculo) extends RecursiveTask[Seq[Seq[Char]]] {
+      override def compute(): Seq[Seq[Char]] = {
+        if (m > magnitud) SC
+        else {
+          val n = m * 2
+          val SCk = SC.flatMap(subc => alfabeto.map(letra => subc :+ letra).filter(oraculo))
+          val tasks = SCk.map(subc => new SubcadenasTask(m + 1, n, Seq(subc), alfabeto, magnitud, oraculo))
+          tasks.foreach(_.fork())
+          val results = tasks.map(_.join())
+          results.flatten
+        }
+      }
+    }
+    val fjPool = new ForkJoinPool()
+    val task = new SubcadenasTask(1, 1, Seq(Seq.empty[Char]), alfabeto, magnitud, oraculo)
+    val result = fjPool.invoke(task)
+    result.find(_.length == magnitud).getOrElse(Seq())
+  }
+
+  def reconstruirCadenaTurboPar(alfabeto: Seq[Char], magnitud: Int, oraculo: Oraculo): Seq[Char] = {
+    class Subcadenas(m: Int, n: Int, SC: Seq[Seq[Char]], alfabeto: Seq[Char], magnitud: Int, oraculo: Oraculo) extends RecursiveTask[Seq[Seq[Char]]] {
+      override def compute(): Seq[Seq[Char]] = {
+        if (m <= magnitud) {
+          val n = m * 2
+          val SCk = SC.flatMap(subc => alfabeto.map(letra => subc :+ letra).filter(oraculo))
+          val tasks = SCk.map(subc => new Subcadenas(m + 1, n, Seq(subc), alfabeto, magnitud, oraculo))
+          tasks.foreach(_.fork())
+          val results = tasks.map(_.join())
+          results.flatten
+        } else {
+          SC
+        }
+      }
+    }
+    val fjPool = new ForkJoinPool()
+    val task = new Subcadenas(1, 1, Seq(Seq.empty[Char]), alfabeto, magnitud, oraculo)
+    val result = fjPool.invoke(task)
+    result.find(_.length == magnitud).getOrElse(Seq())
+  }
+
+
+
+
+
   /*  def reconstuirCadenaIngenuoPar(n: Int, o: Oraculo): Seq[Char] = {
     val candidatas = task(secuenciaaleatoria(n)).join()
     candidatas.find(o: Seq[Char] => Boolean).getOrElse(Seq())
@@ -164,7 +210,6 @@ object Proyecto_PFC {
   }
 
   //Funcion adicionar recibe una secuencia s y un trie t y devuelve el trie correspondiente a adicionar s a t
-
   def adiciona(s: String, t: Trie): Trie = {
     def adicionar(str: String, trie: Trie): Trie = {
       if (str.isEmpty) {
@@ -314,10 +359,26 @@ object Proyecto_PFC {
     println(s"Tiempo de ejecucion: $tiempoMejoradoPar ms")
 
 
- */
+    val tiempoInicioTurboPar = System.nanoTime()
+    val cadenaTP = reconstruirCadenaTurboPar(alfabeto, magnitud, o)
+    println(s" Cadena por turbo paralelo: $cadenaTP")
+    val tiempoFinTurboPar = System.nanoTime()
+    val tiempoTurboPar = (tiempoFinTurboPar - tiempoInicioTurboPar) / 1e6
+    println(s"Tiempo de ejecucion: $tiempoTurboPar ms")
 
-
-
+    val tiempoInicioTurboMejoradoPar = System.nanoTime()
+    val TmejoradoPar = reconstruirCadenaTurboMejoradoPar(alfabeto,magnitud, o)
+    println(s" Cadena por turbo mejorado par: $TmejoradoPar")
+    val tiempoFinTurboMejoradoPar = System.nanoTime()
+    val tiempoTurboMejoradoPar = (tiempoFinTurboMejoradoPar - tiempoInicioTurboMejoradoPar) / 1e6
+    println(s"Tiempo de ejecucion: $tiempoTurboMejoradoPar ms")
+/*
+    val tiempoInicioTurboAcelerado = System.nanoTime()
+    val turboAcelerado = recontruirCadenaTurboAcelerada(alfabeto, magnitud, o)
+    println(s" Cadena por turbo acelerado: $turboAcelerado")
+    val tiempoFinTurboAcelerado = System.nanoTime()
+    val tiempoTurboAcelerado = (tiempoFinTurboAcelerado - tiempoInicioTurboAcelerado) / 1e6
+    println(s"Tiempo de ejecucion: $tiempoTurboAcelerado ms")*/
 
   }
 
