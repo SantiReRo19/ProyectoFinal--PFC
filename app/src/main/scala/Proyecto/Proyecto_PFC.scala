@@ -108,6 +108,29 @@ object Proyecto_PFC {
     result.find(_.length == magnitud).getOrElse(Seq())
   }
 
+  def reconstruirCadenaTurboPar(alfabeto: Seq[Char], magnitud: Int, oraculo: Oraculo): Seq[Char] = {
+    class Subcadenas(m: Int, n: Int, SC: Seq[Seq[Char]], alfabeto: Seq[Char], magnitud: Int, oraculo: Oraculo) extends RecursiveTask[Seq[Seq[Char]]] {
+      override def compute(): Seq[Seq[Char]] = {
+        if (m <= magnitud) {
+          val n = m * 2
+          val SCk = SC.flatMap(subc => alfabeto.map(letra => subc :+ letra).filter(oraculo))
+          val tasks = SCk.map(subc => new Subcadenas(m + 1, n, Seq(subc), alfabeto, magnitud, oraculo))
+          tasks.foreach(_.fork())
+          val results = tasks.map(_.join())
+          results.flatten
+        } else {
+          SC
+        }
+      }
+    }
+    val fjPool = new ForkJoinPool()
+    val task = new Subcadenas(1, 1, Seq(Seq.empty[Char]), alfabeto, magnitud, oraculo)
+    val result = fjPool.invoke(task)
+    result.find(_.length == magnitud).getOrElse(Seq())
+  }
+
+
+
 
 
   /*  def reconstuirCadenaIngenuoPar(n: Int, o: Oraculo): Seq[Char] = {
@@ -268,9 +291,16 @@ object Proyecto_PFC {
 
 */
 
+    val tiempoInicioTurboPar = System.nanoTime()
+    val cadenaTP = reconstruirCadenaTurboPar(alfabeto, magnitud, o)
+    println(s" Cadena por turbo paralelo: $cadenaTP")
+    val tiempoFinTurboPar = System.nanoTime()
+    val tiempoTurboPar = (tiempoFinTurboPar - tiempoInicioTurboPar) / 1e6
+    println(s"Tiempo de ejecucion: $tiempoTurboPar ms")
+
     val tiempoInicioTurboMejoradoPar = System.nanoTime()
-    val mejoradoPar = reconstruirCadenaTurboMejoradoPar(alfabeto,magnitud, o)
-    println(s" Cadena por mejorado par: $mejoradoPar")
+    val TmejoradoPar = reconstruirCadenaTurboMejoradoPar(alfabeto,magnitud, o)
+    println(s" Cadena por turbo mejorado par: $TmejoradoPar")
     val tiempoFinTurboMejoradoPar = System.nanoTime()
     val tiempoTurboMejoradoPar = (tiempoFinTurboMejoradoPar - tiempoInicioTurboMejoradoPar) / 1e6
     println(s"Tiempo de ejecucion: $tiempoTurboMejoradoPar ms")
