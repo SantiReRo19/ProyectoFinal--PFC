@@ -11,6 +11,7 @@ import scala.concurrent._
 import ExecutionContext.Implicits.global
 import common.task
 import org.scalameter.{Warmer, withWarmer}
+import java.util.concurrent.{ForkJoinPool, RecursiveTask}
 
 import scala.concurrent.duration.Duration
 object Proyecto_PFC {
@@ -86,6 +87,28 @@ object Proyecto_PFC {
     SC.find(_.length == magnitud).getOrElse(Seq())
 
   }
+
+  def reconstruirCadenaTurboMejoradoPar(alfabeto: Seq[Char], magnitud: Int, oraculo: Oraculo): Seq[Char] = {
+    class SubcadenasTask(m: Int, n: Int, SC: Seq[Seq[Char]], alfabeto: Seq[Char], magnitud: Int, oraculo: Oraculo) extends RecursiveTask[Seq[Seq[Char]]] {
+      override def compute(): Seq[Seq[Char]] = {
+        if (m > magnitud) SC
+        else {
+          val n = m * 2
+          val SCk = SC.flatMap(subc => alfabeto.map(letra => subc :+ letra).filter(oraculo))
+          val tasks = SCk.map(subc => new SubcadenasTask(m + 1, n, Seq(subc), alfabeto, magnitud, oraculo))
+          tasks.foreach(_.fork())
+          val results = tasks.map(_.join())
+          results.flatten
+        }
+      }
+    }
+    val fjPool = new ForkJoinPool()
+    val task = new SubcadenasTask(1, 1, Seq(Seq.empty[Char]), alfabeto, magnitud, oraculo)
+    val result = fjPool.invoke(task)
+    result.find(_.length == magnitud).getOrElse(Seq())
+  }
+
+
 
   /*  def reconstuirCadenaIngenuoPar(n: Int, o: Oraculo): Seq[Char] = {
     val candidatas = task(secuenciaaleatoria(n)).join()
@@ -244,12 +267,20 @@ object Proyecto_PFC {
     println(s"Tiempo de ejecucion: $tiempoMejoradoPar ms")
 
 */
+
+    val tiempoInicioTurboMejoradoPar = System.nanoTime()
+    val mejoradoPar = reconstruirCadenaTurboMejoradoPar(alfabeto,magnitud, o)
+    println(s" Cadena por mejorado par: $mejoradoPar")
+    val tiempoFinTurboMejoradoPar = System.nanoTime()
+    val tiempoTurboMejoradoPar = (tiempoFinTurboMejoradoPar - tiempoInicioTurboMejoradoPar) / 1e6
+    println(s"Tiempo de ejecucion: $tiempoTurboMejoradoPar ms")
+/*
     val tiempoInicioTurboAcelerado = System.nanoTime()
     val turboAcelerado = recontruirCadenaTurboAcelerada(alfabeto, magnitud, o)
     println(s" Cadena por turbo acelerado: $turboAcelerado")
     val tiempoFinTurboAcelerado = System.nanoTime()
     val tiempoTurboAcelerado = (tiempoFinTurboAcelerado - tiempoInicioTurboAcelerado) / 1e6
-    println(s"Tiempo de ejecucion: $tiempoTurboAcelerado ms")
+    println(s"Tiempo de ejecucion: $tiempoTurboAcelerado ms")*/
 
   }
 
