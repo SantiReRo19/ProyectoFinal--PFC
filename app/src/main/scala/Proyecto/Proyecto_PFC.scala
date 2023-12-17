@@ -13,6 +13,7 @@ import common.parallel
 import org.scalameter.{Warmer, withWarmer}
 
 import java.util.concurrent.{ForkJoinPool, RecursiveTask}
+
 import scala.concurrent.duration.Duration
 object Proyecto_PFC {
 
