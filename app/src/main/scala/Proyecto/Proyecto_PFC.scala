@@ -250,6 +250,7 @@ object Proyecto_PFC {
     )
 
     val magnitud = 8
+
     val SecRandom= secuenciaaleatoria(magnitud)
 
     val o: Oraculo = (s: Seq[Char]) => {
