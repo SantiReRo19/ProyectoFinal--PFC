@@ -48,7 +48,6 @@ object Proyecto_PFC {
         SC
       }
     }
-
     val SC = subcadenas_candidatas(1, Seq(Seq()))
     SC.find(longitud == _.length).getOrElse(Seq())
   }
@@ -64,7 +63,6 @@ object Proyecto_PFC {
         SC
       }
     }
-
     val SC = subcadenas_candidatas(1, 1, Seq(Seq.empty[Char]))
     SC.find(_.length == magnitud).getOrElse(Seq())
 
@@ -146,39 +144,67 @@ object Proyecto_PFC {
   }
 
   //Funcion adicionar recibe una secuencia s y un trie t y devuelve el trie correspondiente a adicionar s a t
+
   def adiciona(s: String, t: Trie): Trie = {
     def adicionar(str: String, trie: Trie): Trie = {
       if (str.isEmpty) {
         trie
       } else {
         trie match {
-
           case Nodo(c, marcada, hijos) =>
             val (nuevoHijo, nuevosHijos) = hijos.partition(h => raiz(h) == str.head)
             val actualizadoHijo = nuevoHijo.headOption.map(h => adicionar(str.tail, h)).getOrElse(Hoja(str.head, marcada))
             Nodo(c, marcada, actualizadoHijo :: nuevosHijos)
           case Hoja(_, _) =>
-            Nodo('_', false, List(adicionar(str, Hoja('_', true))))
+            Nodo('_', false, List(adicionar(str.tail, Hoja('_', true))))
         }
       }
     }
-
     adicionar(s, t)
   }
+
+  def adicionar(s: Seq[Char], t: Trie): Trie = {
+    if (s.isEmpty) {
+      t match {
+        case Nodo(c, _, hijos) => Nodo(c, true, hijos)
+        case Hoja(c, _) => Hoja(c, true)
+      }
+    } else {
+      t match {
+        case Nodo(c, marcada, hijos) => {
+          val h = hijos.find(h => raiz(h) == s.head)
+          if (h.isEmpty) {
+            Nodo(c, marcada, hijos :+ adicionar(s, Hoja(s.head, false)))
+          } else {
+            Nodo(c, marcada, hijos.map(h => if (raiz(h) == s.head) adicionar(s.tail, h) else h))
+          }
+        }
+        case Hoja(c, marcada) => Nodo(c, marcada, List(adicionar(s.tail, Hoja(s.head, false))))
+      }
+    }
+  }
+
+
   def arbolSufijos(secuencias: Seq[String]): Trie = {
-    secuencias.foldLeft(Hoja('_', false): Trie)((t, s) => adiciona(s, t))}
-  def recontruirCadenaTurboAcelerada(alfabeto: Seq[Char], magnitud: Int, o: Oraculo): Seq[Char] = {
-    def reconstruirCadenaTurboAceleradaAux(m: Int, n: Int, SC: Seq[Seq[Char]], t: Trie): Seq[Char] = {
+    secuencias.foldLeft(Hoja('_', false): Trie)((t, s) => adicionar(s, t))
+  }
+
+
+
+
+  def recontruirCadenaTurboAcelerada(magnitud: Int, o: Oraculo): Seq[Char] = {
+    def reconstruirCadenaTurboAceleradaAux(m: Int, SC: Seq[Seq[Char]]): Seq[Char] = {
       if (m > magnitud) {
         SC.find(_.length == magnitud).getOrElse(Seq())    }
       else {
-
         val n = m * 2
         val SCk = SC.flatMap(subc => alfabeto.map(letra => subc :+ letra)).filter(o)
-        val t = arbolSufijos(SCk.map(_.mkString))
-      reconstruirCadenaTurboAceleradaAux(m + 1, n, SCk, t)
-    }  }
-    val SC = reconstruirCadenaTurboAceleradaAux(1, 1, Seq(Seq.empty[Char]), Hoja('_', false))
+        println(SCk.map(_.mkString))
+        //val t = arbolSufijos(SCk.map(_.mkString))
+        reconstruirCadenaTurboAceleradaAux(m + 1,SCk)
+      }
+    }
+    val SC = reconstruirCadenaTurboAceleradaAux(1, Seq(Seq.empty[Char]))
     SC
   }
 
@@ -196,6 +222,9 @@ object Proyecto_PFC {
 
     val magnitud = 4
     val SecRandom= secuenciaaleatoria(magnitud)
+
+
+
 
     val o: Oraculo = (s: Seq[Char]) => {
       SecRandom.containsSlice(s)
@@ -242,13 +271,17 @@ object Proyecto_PFC {
     val tiempoFinMejoradoPar = System.nanoTime()
     val tiempoMejoradoPar = (tiempoFinMejoradoPar - tiempoInicioMejoradoPar) / 1e6
     println(s"Tiempo de ejecucion: $tiempoMejoradoPar ms")
-*/
+
+
+ */
     val tiempoInicioTurboAcelerado = System.nanoTime()
-    val turboAcelerado = recontruirCadenaTurboAcelerada(alfabeto, magnitud, o)
+    val turboAcelerado = recontruirCadenaTurboAcelerada(magnitud, o)
     println(s" Cadena por turbo acelerado: $turboAcelerado")
     val tiempoFinTurboAcelerado = System.nanoTime()
     val tiempoTurboAcelerado = (tiempoFinTurboAcelerado - tiempoInicioTurboAcelerado) / 1e6
     println(s"Tiempo de ejecucion: $tiempoTurboAcelerado ms")
+
+
 
   }
 
