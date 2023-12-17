@@ -26,7 +26,7 @@ object Proyecto_PFC {
     (1 to tamano).map(_ => alfabeto(random.nextInt(alfabeto.length))).mkString
   }
 
-  def ReconstruirCadenaIngenuo(alfabeto: Seq[Char], longitud: Int, o: Oraculo): Seq[Char] = {
+  def reconstruirCadenaIngenuo(alfabeto: Seq[Char], longitud: Int, o: Oraculo): Seq[Char] = {
     def CadCandidatas(alfabeto: Seq[Char], longitud: Int): Seq[Seq[Char]] = {
       if (longitud == 0) {
         Seq(Seq.empty[Char])
@@ -42,7 +42,7 @@ object Proyecto_PFC {
     }
   }
 
-  def ReconstruirCadenaIngenuoPar(alfabeto: Seq[Char], longitud: Int, o: Oraculo): Seq[Char] = {
+  def reconstruirCadenaIngenuoPar(alfabeto: Seq[Char], longitud: Int, o: Oraculo): Seq[Char] = {
     def CadCandidatas(alfabeto: Seq[Char], longitud: Int): Seq[Seq[Char]] = {
       if (longitud == 0) {
         Seq(Seq.empty[Char])
@@ -62,7 +62,7 @@ object Proyecto_PFC {
     }
   }
 
-  def ReconstruirCadenaMejorado(alfabeto: Seq[Char], longitud: Int, o: Oraculo): Seq[Char] = {
+  def reconstruirCadenaMejorado(alfabeto: Seq[Char], longitud: Int, o: Oraculo): Seq[Char] = {
     def subcadenas_candidatas(m: Int, SC: Seq[Seq[Char]]): Seq[Seq[Char]] = {
       if (m <= longitud) subcadenas_candidatas(m + 1, SC.flatMap(subc => alfabeto.map(letra => subc :+ letra)).filter(o))
       else {
@@ -73,7 +73,7 @@ object Proyecto_PFC {
     SC.find(longitud == _.length).getOrElse(Seq())
   }
 
-  def ReconstruirCadenaTurbo(alfabeto: Seq[Char], magnitud: Int, o: Oraculo): Seq[Char] = {
+  def reconstruirCadenaTurbo(alfabeto: Seq[Char], magnitud: Int, o: Oraculo): Seq[Char] = {
     def subcadenas_candidatas(m: Int, n: Int, SC: Seq[Seq[Char]]): Seq[Seq[Char]] = {
       if (m <= magnitud) {
         val n = m * 2
@@ -103,6 +103,12 @@ object Proyecto_PFC {
 
     val SC = subcadenas_candidatas(1, 1, Seq(Seq.empty[Char]))
     SC.find(_.length == magnitud).getOrElse(Seq())
+
+
+
+
+
+
 
   }
 
@@ -250,7 +256,7 @@ object Proyecto_PFC {
 
 
 
-  def recontruirCadenaTurboAcelerada(magnitud: Int, o: Oraculo): Seq[Char] = {
+  def reconstruirCadenaTurboAcelerada(magnitud: Int, o: Oraculo): Seq[Char] = {
     def reconstruirCadenaTurboAceleradaAux(m: Int, SC: Seq[Seq[Char]]): Seq[Char] = {
       if (m > magnitud) {
         SC.find(_.length == magnitud).getOrElse(Seq())    }
@@ -264,6 +270,24 @@ object Proyecto_PFC {
     }
     val SC = reconstruirCadenaTurboAceleradaAux(1, Seq(Seq.empty[Char]))
     SC
+  }
+
+  object Benchmark {
+
+    def compararAlgoritmos(Funcion1: (Seq[Char], Int, Oraculo) => Seq[Char], Funcion2: (Seq[Char], Int, Oraculo) => Seq[Char])(alfabeto:Seq[Char], magnitud:Int, o:Oraculo): (Double, Double, Double) = {
+      val timeF1 = withWarmer(new Warmer.Default) measure {
+        Funcion1(alfabeto, magnitud, o)
+      } //la funcion 1 y 2 reciben dos numeros, los cuales son a y n
+      val timeF2 = withWarmer(new Warmer.Default) measure {
+        Funcion2(alfabeto, magnitud, o)
+      }
+
+      val promedio = timeF1.value / timeF2.value
+      (timeF1.value, timeF2.value, promedio)
+
+    } // definimos la funcion para comparar algoritmos con el benchmark
+
+
   }
 
 
@@ -294,7 +318,7 @@ object Proyecto_PFC {
 
 
       val tiempoInicioIngenuo = System.nanoTime()
-      val cadena = ReconstruirCadenaIngenuo(alfabeto, magnitud, o)
+      val cadena = reconstruirCadenaIngenuo(alfabeto, magnitud, o)
       println(s" Cadena por ingenuo de tamano $magnitud: $cadena")
       val tiempoFinIngenuo = System.nanoTime()
       val tiempoIngenuo = (tiempoFinIngenuo - tiempoInicioIngenuo) / 1e6
@@ -302,7 +326,7 @@ object Proyecto_PFC {
 
 
       val tiempoInicioMejorado = System.nanoTime()
-      val cadenaM = ReconstruirCadenaMejorado( alfabeto, magnitud, o)
+      val cadenaM = reconstruirCadenaMejorado( alfabeto, magnitud, o)
       println(s" Cadena por mejorado de tamano $magnitud: $cadenaM")
       val tiempoFinalMejorado = System.nanoTime()
       val tiempoMejorado = (tiempoFinalMejorado - tiempoInicioMejorado) / 1e6
@@ -310,7 +334,7 @@ object Proyecto_PFC {
 
 
       val tiempoInicioTurbo = System.nanoTime()
-      val cadenaT = ReconstruirCadenaTurbo(alfabeto, magnitud, o)
+      val cadenaT = reconstruirCadenaTurbo(alfabeto, magnitud, o)
       println(s" Cadena por turbo de tamano $magnitud: $cadenaT")
       val tiempoFinTurbo = System.nanoTime()
       val tiempoTurbo = (tiempoFinTurbo - tiempoInicioTurbo) / 1e6
@@ -326,7 +350,7 @@ object Proyecto_PFC {
 
 
       val tiempoInicioTurboAcelerado = System.nanoTime()
-      val turboAcelerado = recontruirCadenaTurboAcelerada(magnitud, o)
+      val turboAcelerado = reconstruirCadenaTurboAcelerada(magnitud, o)
       println(s" Cadena por turbo acelerado de tamano $magnitud: $turboAcelerado")
       val tiempoFinTurboAcelerado = System.nanoTime()
       val tiempoTurboAcelerado = (tiempoFinTurboAcelerado - tiempoInicioTurboAcelerado) / 1e6
@@ -335,7 +359,7 @@ object Proyecto_PFC {
 
       //prueba de la ingenuo paralelo
       val tiempoInicioIngenuoPar = System.nanoTime()
-      val ingenuoPar = ReconstruirCadenaIngenuoPar(alfabeto, magnitud, o)
+      val ingenuoPar = reconstruirCadenaIngenuoPar(alfabeto, magnitud, o)
       println(s" Cadena por ingenuo par de tamano $magnitud: $ingenuoPar")
       val tiempoFinIngenuoPar = System.nanoTime()
       val tiempoIngenuoPar = (tiempoFinIngenuoPar - tiempoInicioIngenuoPar) / 1e6
