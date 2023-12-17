@@ -298,12 +298,15 @@ object Proyecto_PFC {
       val o: Oraculo = (s: Seq[Char]) => {
         SecRandom.containsSlice(s)
       }
+      /*
       val tiempoInicioIngenuo = System.nanoTime()
       val cadena = ReconstruirCadenaIngenuo(alfabeto, magnitud, o)
       println(s" Cadena por ingenuo de tamano $magnitud: $cadena")
       val tiempoFinIngenuo = System.nanoTime()
       val tiempoIngenuo = (tiempoFinIngenuo - tiempoInicioIngenuo) / 1e6
       println(s"Tiempo de ejecucion: $tiempoIngenuo ms")
+
+       */
 
       //prueba de la ingenuo paralelo
       val tiempoInicioIngenuoPar = System.nanoTime()
@@ -340,6 +343,21 @@ object Proyecto_PFC {
       val tiempoFinTurboAcelerado = System.nanoTime()
       val tiempoTurboAcelerado = (tiempoFinTurboAcelerado - tiempoInicioTurboAcelerado) / 1e6
       println(s"Tiempo de ejecucion: $tiempoTurboAcelerado ms\n")
+
+      val tiempoInicioTurboPar = System.nanoTime()
+      val cadenaTP = reconstruirCadenaTurboPar(alfabeto, magnitud, o)
+      println(s" Cadena por turbo paralelo: $cadenaTP")
+      val tiempoFinTurboPar = System.nanoTime()
+      val tiempoTurboPar = (tiempoFinTurboPar - tiempoInicioTurboPar) / 1e6
+      println(s"Tiempo de ejecucion: $tiempoTurboPar ms")
+
+      val tiempoInicioTurboMejoradoPar = System.nanoTime()
+      val TmejoradoPar = reconstruirCadenaTurboMejoradoPar(alfabeto,magnitud, o)
+      println(s" Cadena por turbo mejorado par: $TmejoradoPar")
+      val tiempoFinTurboMejoradoPar = System.nanoTime()
+      val tiempoTurboMejoradoPar = (tiempoFinTurboMejoradoPar - tiempoInicioTurboMejoradoPar) / 1e6
+      println(s"Tiempo de ejecucion: $tiempoTurboMejoradoPar ms")
+
     }
 
 
@@ -358,27 +376,8 @@ object Proyecto_PFC {
     val tiempoMejoradoPar = (tiempoFinMejoradoPar - tiempoInicioMejoradoPar) / 1e6
     println(s"Tiempo de ejecucion: $tiempoMejoradoPar ms")
 
+*/
 
-    val tiempoInicioTurboPar = System.nanoTime()
-    val cadenaTP = reconstruirCadenaTurboPar(alfabeto, magnitud, o)
-    println(s" Cadena por turbo paralelo: $cadenaTP")
-    val tiempoFinTurboPar = System.nanoTime()
-    val tiempoTurboPar = (tiempoFinTurboPar - tiempoInicioTurboPar) / 1e6
-    println(s"Tiempo de ejecucion: $tiempoTurboPar ms")
-
-    val tiempoInicioTurboMejoradoPar = System.nanoTime()
-    val TmejoradoPar = reconstruirCadenaTurboMejoradoPar(alfabeto,magnitud, o)
-    println(s" Cadena por turbo mejorado par: $TmejoradoPar")
-    val tiempoFinTurboMejoradoPar = System.nanoTime()
-    val tiempoTurboMejoradoPar = (tiempoFinTurboMejoradoPar - tiempoInicioTurboMejoradoPar) / 1e6
-    println(s"Tiempo de ejecucion: $tiempoTurboMejoradoPar ms")
-/*
-    val tiempoInicioTurboAcelerado = System.nanoTime()
-    val turboAcelerado = recontruirCadenaTurboAcelerada(alfabeto, magnitud, o)
-    println(s" Cadena por turbo acelerado: $turboAcelerado")
-    val tiempoFinTurboAcelerado = System.nanoTime()
-    val tiempoTurboAcelerado = (tiempoFinTurboAcelerado - tiempoInicioTurboAcelerado) / 1e6
-    println(s"Tiempo de ejecucion: $tiempoTurboAcelerado ms")*/
 
   }
 
