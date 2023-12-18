@@ -369,7 +369,7 @@ object Proyecto_PFC {
 
 
     val tiempoInicioTurboAcelerado = System.nanoTime()
-    val turboAcelerado = reconstruirCadenaTurboAcelerada(magnitud, o)
+    val turboAcelerado = recontruirCadenaTurboAcelerada(magnitud, o)
     val tiempoFinTurboAcelerado = System.nanoTime()
     val tiempoTurboAcelerado = (tiempoFinTurboAcelerado - tiempoInicioTurboAcelerado) / 1e6
     /*
