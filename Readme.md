@@ -11,4 +11,4 @@ patrón o cadena de caracteres compuestos por las letras (a, g, c, t). Con las d
 
 Las instrucciones para ejecutar el programa son bastante sencillas, primero de debe dirigir a la ruta app/src/main/scala/Proyecto/Proyecto_PFC.scala, posteriormente debe de ejecutar el programa y se correran las distintas pruebas implementadas, con las diferentes versionbes ubicadas en el main. Si se desea cambiar la longitud de las cadenas simplemente se edita el valor de la variable "magnitud".
 
-Si se desean hacer pruebas de diferentes longitudes potencias de 2 hasta 2^10 se debe dirigr a la clase ubiacada en la ruta app/src/main/scala/Proyecto/Comparar.scala y descomentar las impresiones comentadas.
+Si se desean hacer pruebas de diferentes longitudes potencias de 2 hasta 2^10 se debe dirigir a la clase ubicada en la ruta app/src/main/scala/Proyecto/Comparar.scala y descomentar las impresiones comentadas. Allí encontrará un resumen comprarativo de los tiempos de ejecución de las implementaciones en sus versiones y con diferentes longitudes.
