@@ -7,25 +7,24 @@
  */
 package Proyecto
 import scala.util.Random
-import scala.concurrent._
-import ExecutionContext.Implicits.global
-import common.{parallel, task}
+import common.parallel
 import org.scalameter.{Warmer, withWarmer}
 import java.util.concurrent.{ForkJoinPool, RecursiveTask}
 
-import scala.concurrent.duration.Duration
+
 object Proyecto_PFC {
 
-
+//Definimos el alfabeto y el tipo Oraculo
   val alfabeto = Seq('a', 'c', 'g', 't')
   type Oraculo = Seq[Char] => Boolean
 
-
+//Funcion Auxiliar para generar secuencias aleatorias
   def secuenciaaleatoria(tamano: Int): String = {
     val random = new Random()
     (1 to tamano).map(_ => alfabeto(random.nextInt(alfabeto.length))).mkString
   }
 
+  //Implementaciones secuenciales
   def reconstruirCadenaIngenuo(alfabeto: Seq[Char], longitud: Int, o: Oraculo): Seq[Char] = {
     def CadCandidatas(alfabeto: Seq[Char], longitud: Int): Seq[Seq[Char]] = {
       if (longitud == 0) {
@@ -42,25 +41,6 @@ object Proyecto_PFC {
     }
   }
 
-  def reconstruirCadenaIngenuoPar(alfabeto: Seq[Char], longitud: Int, o: Oraculo): Seq[Char] = {
-    def CadCandidatas(alfabeto: Seq[Char], longitud: Int): Seq[Seq[Char]] = {
-      if (longitud == 0) {
-        Seq(Seq.empty[Char])
-      } else {
-        val n = alfabeto.length / 2
-        val (alfabeto1, alfabeto2) = alfabeto.splitAt(n)
-        val (p1, p2) = parallel(alfabeto1.flatMap(caracter => CadCandidatas(alfabeto, longitud - 1).map(caracter +: _)),
-          alfabeto2.flatMap(caracter => CadCandidatas(alfabeto, longitud - 1).map(caracter +: _)))
-        p1 ++ p2
-      }
-    }
-
-    val combinacionesPosibles = CadCandidatas(alfabeto, longitud)
-    combinacionesPosibles.flatMap { seq =>
-      if (o(seq)) seq
-      else None
-    }
-  }
 
   def reconstruirCadenaMejorado(alfabeto: Seq[Char], longitud: Int, o: Oraculo): Seq[Char] = {
     def subcadenas_candidatas(m: Int, SC: Seq[Seq[Char]]): Seq[Seq[Char]] = {
@@ -106,74 +86,6 @@ object Proyecto_PFC {
 
   }
 
-  def reconstruirCadenaTurboMejoradoPar(alfabeto: Seq[Char], magnitud: Int, oraculo: Oraculo): Seq[Char] = {
-    class SubcadenasTask(m: Int, n: Int, SC: Seq[Seq[Char]], alfabeto: Seq[Char], magnitud: Int, oraculo: Oraculo) extends RecursiveTask[Seq[Seq[Char]]] {
-      override def compute(): Seq[Seq[Char]] = {
-        if (m > magnitud) SC
-        else {
-          val n = m * 2
-          val SCk = SC.flatMap(subc => alfabeto.map(letra => subc :+ letra).filter(oraculo))
-          val tasks = SCk.map(subc => new SubcadenasTask(m + 1, n, Seq(subc), alfabeto, magnitud, oraculo))
-          tasks.foreach(_.fork())
-          val results = tasks.map(_.join())
-          results.flatten
-        }
-      }
-    }
-    val fjPool = new ForkJoinPool()
-    val task = new SubcadenasTask(1, 1, Seq(Seq.empty[Char]), alfabeto, magnitud, oraculo)
-    val result = fjPool.invoke(task)
-    result.find(_.length == magnitud).getOrElse(Seq())
-  }
-
-  def reconstruirCadenaTurboPar(alfabeto: Seq[Char], magnitud: Int, oraculo: Oraculo): Seq[Char] = {
-    class Subcadenas(m: Int, n: Int, SC: Seq[Seq[Char]], alfabeto: Seq[Char], magnitud: Int, oraculo: Oraculo) extends RecursiveTask[Seq[Seq[Char]]] {
-      override def compute(): Seq[Seq[Char]] = {
-        if (m <= magnitud) {
-          val n = m * 2
-          val SCk = SC.flatMap(subc => alfabeto.map(letra => subc :+ letra).filter(oraculo))
-          val tasks = SCk.map(subc => new Subcadenas(m + 1, n, Seq(subc), alfabeto, magnitud, oraculo))
-          tasks.foreach(_.fork())
-          val results = tasks.map(_.join())
-          results.flatten
-        } else {
-          SC
-        }
-      }
-    }
-    val fjPool = new ForkJoinPool()
-    val task = new Subcadenas(1, 1, Seq(Seq.empty[Char]), alfabeto, magnitud, oraculo)
-    val result = fjPool.invoke(task)
-    result.find(_.length == magnitud).getOrElse(Seq())
-  }
-
-
-
-
-
-  /*  def reconstuirCadenaIngenuoPar(n: Int, o: Oraculo): Seq[Char] = {
-    val candidatas = task(secuenciaaleatoria(n)).join()
-    candidatas.find(o: Seq[Char] => Boolean).getOrElse(Seq())
-  }
-
-
-
-  def reconstruirCadenaMejoradoPar(n: Int, o: Oraculo): Seq[Char] = {
-    def reconstruirRecursivo(actual: Seq[Char], longitudActual: Int): Seq[Char] = {
-      if (longitudActual == n && o(actual)) {
-        actual
-      } else if (longitudActual < n) {
-        val tareas = task(alfabeto.map(letra => task(reconstruirRecursivo(actual :+ letra, longitudActual + 1)))).join
-        val siguientes = tareas.map(_.join())
-        siguientes
-      } else {
-        Seq()
-      }
-    }
-    reconstruirRecursivo(Seq(), 0)
-  }
-  */
-
 
   abstract class Trie
 
@@ -207,6 +119,7 @@ object Proyecto_PFC {
       }
     }
   }
+
   def pertenece(s: String, t: Trie): Boolean = {
     if (s.isEmpty) {
       t match {
@@ -238,6 +151,7 @@ object Proyecto_PFC {
         }
       }
     }
+
     adicionar(s, t)
   }
 
@@ -268,21 +182,91 @@ object Proyecto_PFC {
   }
 
 
-  def recontruirCadenaTurboAcelerada(magnitud: Int, o: Oraculo): Seq[Char] = {
+  def reconstruirCadenaTurboAcelerada(magnitud: Int, o: Oraculo): Seq[Char] = {
     def reconstruirCadenaTurboAceleradaAux(m: Int, SC: Seq[Seq[Char]]): Seq[Char] = {
       if (m > magnitud) {
-        SC.find(_.length == magnitud).getOrElse(Seq())    }
+        SC.find(_.length == magnitud).getOrElse(Seq())
+      }
       else {
         val n = m * 2
         val SCk = SC.flatMap(subc => alfabeto.map(letra => subc :+ letra)).filter(o)
         //println(SCk.map(_.mkString))
         //val t = arbolSufijos(SCk.map(_.mkString))
-        reconstruirCadenaTurboAceleradaAux(m + 1,SCk)
+        reconstruirCadenaTurboAceleradaAux(m + 1, SCk)
       }
     }
+
     val SC = reconstruirCadenaTurboAceleradaAux(1, Seq(Seq.empty[Char]))
     SC
   }
+
+//Implementaciones paralelas
+
+  def reconstruirCadenaIngenuoPar(alfabeto: Seq[Char], longitud: Int, o: Oraculo): Seq[Char] = {
+    def CadCandidatas(alfabeto: Seq[Char], longitud: Int): Seq[Seq[Char]] = {
+      if (longitud == 0) {
+        Seq(Seq.empty[Char])
+      } else {
+        val n = alfabeto.length / 2
+        val (alfabeto1, alfabeto2) = alfabeto.splitAt(n)
+        val (p1, p2) = parallel(alfabeto1.flatMap(caracter => CadCandidatas(alfabeto, longitud - 1).map(caracter +: _)),
+          alfabeto2.flatMap(caracter => CadCandidatas(alfabeto, longitud - 1).map(caracter +: _)))
+        p1 ++ p2
+      }
+    }
+
+    val combinacionesPosibles = CadCandidatas(alfabeto, longitud)
+    combinacionesPosibles.flatMap { seq =>
+      if (o(seq)) seq
+      else None
+    }
+  }
+
+
+  def reconstruirCadenaTurboPar(alfabeto: Seq[Char], magnitud: Int, oraculo: Oraculo): Seq[Char] = {
+    class Subcadenas(m: Int, n: Int, SC: Seq[Seq[Char]], alfabeto: Seq[Char], magnitud: Int, oraculo: Oraculo) extends RecursiveTask[Seq[Seq[Char]]] {
+      override def compute(): Seq[Seq[Char]] = {
+        if (m <= magnitud) {
+          val n = m * 2
+          val SCk = SC.flatMap(subc => alfabeto.map(letra => subc :+ letra).filter(oraculo))
+          val tasks = SCk.map(subc => new Subcadenas(m + 1, n, Seq(subc), alfabeto, magnitud, oraculo))
+          tasks.foreach(_.fork())
+          val results = tasks.map(_.join())
+          results.flatten
+        } else {
+          SC
+        }
+      }
+    }
+    val fjPool = new ForkJoinPool()
+    val task = new Subcadenas(1, 1, Seq(Seq.empty[Char]), alfabeto, magnitud, oraculo)
+    val result = fjPool.invoke(task)
+    result.find(_.length == magnitud).getOrElse(Seq())
+  }
+
+
+  def reconstruirCadenaTurboMejoradoPar(alfabeto: Seq[Char], magnitud: Int, oraculo: Oraculo): Seq[Char] = {
+    class SubcadenasTask(m: Int, n: Int, SC: Seq[Seq[Char]], alfabeto: Seq[Char], magnitud: Int, oraculo: Oraculo) extends RecursiveTask[Seq[Seq[Char]]] {
+      override def compute(): Seq[Seq[Char]] = {
+        if (m > magnitud) SC
+        else {
+          val n = m * 2
+          val SCk = SC.flatMap(subc => alfabeto.map(letra => subc :+ letra).filter(oraculo))
+          val tasks = SCk.map(subc => new SubcadenasTask(m + 1, n, Seq(subc), alfabeto, magnitud, oraculo))
+          tasks.foreach(_.fork())
+          val results = tasks.map(_.join())
+          results.flatten
+        }
+      }
+    }
+    val fjPool = new ForkJoinPool()
+    val task = new SubcadenasTask(1, 1, Seq(Seq.empty[Char]), alfabeto, magnitud, oraculo)
+    val result = fjPool.invoke(task)
+    result.find(_.length == magnitud).getOrElse(Seq())
+  }
+
+
+//Comparacion de algoritmos
 
   object Benchmark {
 
@@ -337,7 +321,7 @@ object Proyecto_PFC {
        val tiempoMejoradoPar = (tiempoFinMejoradoPar - tiempoInicioMejoradoPar) / 1e6
        */
     println(s" Cadena de tamano $magnitud por Mejorado, secuencial y paralelo: $cadenaM")
-    println(s"Tiempo de ejecucion secuencial: $tiempoFinalMejorado ms, paralelo: ms.\n")
+    println(s"Tiempo de ejecucion secuencial: $tiempoMejorado ms, paralelo: ms.\n")
 
 
     val tiempoInicioTurbo = System.nanoTime()
@@ -369,7 +353,7 @@ object Proyecto_PFC {
 
 
     val tiempoInicioTurboAcelerado = System.nanoTime()
-    val turboAcelerado = recontruirCadenaTurboAcelerada(magnitud, o)
+    val turboAcelerado = reconstruirCadenaTurboAcelerada(magnitud, o)
     val tiempoFinTurboAcelerado = System.nanoTime()
     val tiempoTurboAcelerado = (tiempoFinTurboAcelerado - tiempoInicioTurboAcelerado) / 1e6
     /*
