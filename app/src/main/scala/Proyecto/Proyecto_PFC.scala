@@ -6,7 +6,7 @@
  * Profesor: Carlos A Delgado
  */
 package Proyecto
-import common.parallel
+import common._
 import org.scalameter.{Warmer, withWarmer}
 import java.util.concurrent.{ForkJoinPool, RecursiveTask}
 import scala.annotation.tailrec
@@ -41,7 +41,6 @@ object Proyecto_PFC {
     }
   }
 
-
   def reconstruirCadenaMejorado(alfabeto: Seq[Char], longitud: Int, o: Oraculo): Seq[Char] = {
     def subcadenas_candidatas(m: Int, SC: Seq[Seq[Char]]): Seq[Seq[Char]] = {
       if (m <= longitud) subcadenas_candidatas(m + 1, SC.flatMap(subc => alfabeto.map(letra => subc :+ letra)).filter(o))
@@ -69,7 +68,6 @@ object Proyecto_PFC {
 
   }
 
-
   def reconstruirCadenaTurboMejorado(alfabeto: Seq[Char], magnitud: Int, o: Oraculo): Seq[Char] = {
 
     def subcadenas_candidatas(m: Int, n: Int, SC: Seq[Seq[Char]]): Seq[Seq[Char]] = {
@@ -86,197 +84,84 @@ object Proyecto_PFC {
 
   }
 
-
-
-
-  def raiz(t: Trie): Char =
-    t match {
-      case Nodo(c, _, _) => c
-      case Hoja(c, _) => c
-    }
-
-  def cabezas(t: Trie): Seq[Char] = {
-    t match {
-      case Nodo(_, _, lt) => lt.map(t => raiz(t))
-      case Hoja(c, _) => Seq(c)
-    }
-  }
-
-  /*
-  def pertenecen(s: Seq[Char], t: Trie): Boolean = {
-    if (s.isEmpty) {
-      t match {
-        case Nodo(_, marcada, _) => marcada
-        case Hoja(_, marcada) => marcada
-      }
-    } else {
-      t match {
-        case Nodo(_, _, hijos) => hijos.exists(h => raiz(h) == s.head && pertenecen(s.tail, h))
-        case Hoja(_, _) => false
-      }
-    }
-  }
-
-  def pertenece(s: String, t: Trie): Boolean = {
-    if (s.isEmpty) {
-      t match {
-        case Hoja(_, marcada) => marcada
-        case _ => false
-      }
-    } else {
-      t match {
-        case Nodo(c, _, hijos) =>
-          hijos.exists(h => raiz(h) == s.head && pertenece(s.tail, h))
-        case _ => false
-      }
-    }
-  }
-
-  //Funcion adicionar recibe una secuencia s y un trie t y devuelve el trie correspondiente a adicionar s a t
-  def adiciona(s: String, t: Trie): Trie = {
-    def adicionar(str: String, trie: Trie): Trie = {
-      if (str.isEmpty) {
-        trie
-      } else {
-        trie match {
-          case Nodo(c, marcada, hijos) =>
-            val (nuevoHijo, nuevosHijos) = hijos.partition(h => raiz(h) == str.head)
-            val actualizadoHijo = nuevoHijo.headOption.map(h => adicionar(str.tail, h)).getOrElse(Hoja(str.head, marcada))
-            Nodo(c, marcada, actualizadoHijo :: nuevosHijos)
-          case Hoja(_, _) =>
-            Nodo('_', false, List(adicionar(str.tail, Hoja('_', true))))
-        }
-      }
-    }
-    adicionar(s, t)
-  }
-
-  def adicionar(s: Seq[Char], t: Trie): Trie = {
-    if (s.isEmpty) {
-      t match {
-        case Nodo(c, _, hijos) => Nodo(c, true, hijos)
-        case Hoja(c, _) => Hoja(c, true)
-      }
-    } else {
-      t match {
-        case Nodo(c, marcada, hijos) => {
-          val h = hijos.find(h => raiz(h) == s.head)
-          if (h.isEmpty) {
-            Nodo(c, marcada, hijos :+ adicionar(s, Hoja(s.head, false)))
-          } else {
-            Nodo(c, marcada, hijos.map(h => if (raiz(h) == s.head) adicionar(s.tail, h) else h))
-          }
-        }
-        case Hoja(c, marcada) => Nodo(c, marcada, List(adicionar(s.tail, Hoja(s.head, false))))
-      }
-    }
-  }
-
-  def recontruirCadenaTurboAcelerada(magnitud: Int, o: Oraculo): Seq[Char] = {
-    def reconstruirCadenaTurboAceleradaAux(m: Int, SC: Seq[Seq[Char]]): Seq[Char] = {
-      if (m > magnitud) {
-        SC.find(_.length == magnitud).getOrElse(Seq())    }
-      else {
-        val n = m * 2
-        val SCk = SC.flatMap(subc => alfabeto.map(letra => subc :+ letra)).filter(o)
-        //println(SCk.map(_.mkString))
-        //val t = arbolSufijos(SCk.map(_.mkString))
-        reconstruirCadenaTurboAceleradaAux(m + 1,SCk)
-      }
-    }
-    val SC = reconstruirCadenaTurboAceleradaAux(1, Seq(Seq.empty[Char]))
-    SC
-  }
-
-   */
-
   def pertenece(s: Seq[Char], t: Trie): Boolean = {
     if (s.isEmpty) {
       t match {
-        case Nodo(_, marcada, _) => marcada
-        case Hoja(_, marcada) => marcada
+        case Nodo(_, marca, _) => marca
+        case Hoja(_, marca) => marca
       }
     } else {
       t match {
-        case Nodo(_, _, hijos) => hijos.exists(h => raiz(h) == s.head && pertenece(s.tail, h))
+        case Nodo(_, _, hijos) => hijos.exists(h => pre.raiz(h) == s.head && pertenece(s.tail, h))
         case Hoja(_, _) => false
       }
     }
   }
-  def adicionar(s: Seq[Char], t: Trie): Trie = {
-    // Prepara la "rama" a ser agregada al arbol correspondiente a la secuencia o resto de secuencia a ser añadida.
+  def adicionar(s: Seq[Char], trie: Trie): Trie = {
     def crearRama(s: Seq[Char]): Trie = {
       s match {
-        case cabeza :: cola => cola match {
-          case head :: tail => Nodo(cabeza, marcada = false, List(crearRama(cola)))
-          case Nil => Hoja(cabeza, marcada = true)
+        case head :: tail => tail match {
+          case head :: tail => Nodo(head, marcada = false, List(crearRama(tail)))
+          case Nil => Hoja(head, marcada = true)
         }
         case Nil => Nodo(' ', marcada = false, List())
       }
     }
 
-    def agregarRama(arbolActual: Trie, prefix: Seq[Char], remaining: Seq[Char]): Trie = {
-      (arbolActual, prefix, remaining) match {
-        case (Nodo(car, marcada, hijos), _, head :: tail) if cabezas(Nodo(car, marcada, hijos)).contains(head) =>
-          // Recorre recursivamente el árbol hasta llegar al camino deseado
-          val updatedHijos = hijos.map { hijo =>
-            if (raiz(hijo) == head) agregarRama(hijo, prefix :+ head, tail)
+    def añadirRama(arbolActual: Trie, charAsignados: Seq[Char], charRestantes: Seq[Char]): Trie = {
+      (arbolActual, charAsignados, charRestantes) match {
+        case (Nodo(char, marca, hijos), _, head :: tail) if pre.cabezas(Nodo(char, marca, hijos)).contains(head) =>
+          val nuevoTrie = hijos.map { hijo =>
+            if (pre.raiz(hijo) == head) añadirRama(hijo, charAsignados :+ head, tail)
             else hijo
           }
-          Nodo(car, marcada, updatedHijos)
-        case (Hoja(car, marcada), _, head :: tail) =>
-          // Convierte la hoja en un Nodo con el nuevo "subárbol" como hijo
-          Nodo(car, marcada, List(crearRama(remaining)))
-        case (Nodo(car, marcada, hijos), _, head :: tail) =>
-          // Agrega el nuevo nodo a la lista de hijos cuando el camino se detiene en un Nodo
-          Nodo(car, marcada, hijos :+ crearRama(remaining))
-        case (Nodo(car, false, hijos), _, Nil) =>
-          // Modifica el valor de marcada a true si no hay camino por recorrer pero los elementos de la cadena están en el arbol.
-          Nodo(car, marcada = true, hijos)
+          Nodo(char, marca, nuevoTrie)
+        case (Hoja(char, marcada), _, head :: tail) =>
+          Nodo(char, marcada, List(crearRama(charRestantes)))
+        case (Nodo(char, marcada, hijos), _, head :: tail) =>
+          Nodo(char, marcada, hijos :+ crearRama(charRestantes))
+        case (Nodo(char, false, hijos), _, Nil) =>
+          Nodo(char, marcada = true, hijos)
         case (_, _, _) =>
           arbolActual
       }
     }
-
-    agregarRama(t, Seq.empty[Char], s)
+    añadirRama(trie, Seq.empty[Char], s)
   }
 
-
-  def arbolDeSufijos(secuencias: Seq[Seq[Char]]): Trie  = {
-    secuencias.foldLeft(Nodo('_', false, List()): Trie)((t, s) => adicionar(s, t))
+  def arbolDeSufijos(sec: Seq[Seq[Char]]): Trie  = {
+    sec.foldLeft(Nodo('_', false, List()): Trie)((trie, sc) => adicionar(sc, trie))
   }
   def reconstruirCadenaTurboAcelerada(tamano: Int, o: Oraculo): Seq[Char] = {
-
-    def filtrar(cadenaActual: Seq[Seq[Char]], cadenaAnterior: Seq[Seq[Char]] , k:Int ): Seq[Seq[Char]] = {
-      if (cadenaActual.head.length > 2) {
-        val t = arbolDeSufijos(cadenaAnterior)
-        cadenaActual.filter{s1 => 0 to s1.length - k forall { i => pertenece(s1.slice(i,i+k),t) }}
-      } else cadenaActual
-    }
     @tailrec
-    def subcaden_candidatas(k: Int, SC: Seq[Seq[Char]]): Seq[Seq[Char]] = {
-      if (k >= tamano) SC
+    def posiblesSucadenas(n: Int, sec: Seq[Seq[Char]]): Seq[Seq[Char]] = {
+      if (n >= tamano) sec
       else {
-        val SCk = SC.flatMap { s1 =>
-          SC.flatMap { s2 =>
-            Seq(s1 ++ s2)
+        val secN = sec.flatMap { s1 =>
+          sec.flatMap { s2 =>
+          Seq(s1 ++ s2)
           }
         }
-
-        val SCactual = filtrar(SCk, SC, k)
-        val SCkFiltrado = SCactual.filter(o)
-        subcaden_candidatas(k * 2, SCkFiltrado)
+        val secActual = filtrar(secN, sec, n)
+        val secNFiltrado = secActual.filter(o)
+        posiblesSucadenas(n * 2, secNFiltrado)
       }
     }
-    val Alfab = alfabeto.map(Seq(_)).filter(o)
-    val SC = subcaden_candidatas(1, Alfab)
-    SC.head
+
+    def filtrar(cadenaActual: Seq[Seq[Char]], cadenaAnterior: Seq[Seq[Char]], n: Int): Seq[Seq[Char]] = {
+      if (cadenaActual.head.length > 2) {
+        val Sufijos = arbolDeSufijos(cadenaAnterior)
+        cadenaActual.filter { s1 => 0 to s1.length - n forall { i => pertenece(s1.slice(i, i + n), Sufijos) } }
+      } else cadenaActual
+    }
+
+    val Alfabeto2 = alfabeto.map(Seq(_)).filter(o)
+    val SS = posiblesSucadenas(1, Alfabeto2)
+    SS.head
   }
 
 
-
-
-//Implementaciones paralelas
+  //Implementaciones paralelas
 
   def reconstruirCadenaIngenuoPar(alfabeto: Seq[Char], longitud: Int, o: Oraculo): Seq[Char] = {
     def CadCandidatas(alfabeto: Seq[Char], longitud: Int): Seq[Seq[Char]] = {
@@ -356,9 +241,47 @@ object Proyecto_PFC {
     result.find(_.length == magnitud).getOrElse(Seq())
   }
 
+  def reconstruirCadenaTurboAceleradaPar(tamano: Int, o: Oraculo): Seq[Char] = {
 
-//Comparacion de algoritmos
+    @tailrec
+    def posiblesSucadenas(n: Int, sec: Seq[Seq[Char]]): Seq[Seq[Char]] = {
+      if (n >= tamano) sec
+      else {
+        val (sc1,sc2) = sec.splitAt(sec.length/2)
+        val (p1,p2) = parallel(sc1.flatMap { s1 =>
+          sec.flatMap { s2 =>
+            Seq(s1 ++ s2)
+          }
+        }, sc2.flatMap { s1 =>
+          sec.flatMap { s2 =>
+            Seq(s1 ++ s2)
+          }
+        })
+        val secN = p1 ++ p2
 
+        val secActual = filtrar(secN, sec, n)
+        val secNFiltrado = secActual.filter(o)
+        posiblesSucadenas(n * 2, secNFiltrado)
+      }
+    }
+
+    def filtrar(cadActual: Seq[Seq[Char]], cadPasada: Seq[Seq[Char]], n:Int ): Seq[Seq[Char]] = {
+      if (cadActual.head.length > 2) {
+        val Sufijos = arbolDeSufijos(cadPasada)
+        val (cad1,cad2) = cadActual.splitAt(cadActual.length/2)
+        val (p1,p2) = parallel(cad1.filter{s1 => 0 to s1.length - n forall { i => pertenece(s1.slice(i,i+n),Sufijos) }},
+          cad2.filter{s1 => 0 to s1.length - n forall { i => pertenece(s1.slice(i,i+n),Sufijos) }})
+        p1 ++ p2
+      } else cadActual
+    }
+
+    val Alfabeto2 = alfabeto.map(Seq(_)).filter(o)
+    val SS = posiblesSucadenas(1, Alfabeto2)
+    SS.head
+
+  }
+
+  //Comparacion
   object Benchmark {
 
     def compararAlgoritmos(Funcion1: (Seq[Char], Int, Oraculo) => Seq[Char], Funcion2: (Seq[Char], Int, Oraculo) => Seq[Char])(alfabeto: Seq[Char], magnitud: Int, o: Oraculo): (Double, Double, Double) = {
@@ -378,113 +301,104 @@ object Proyecto_PFC {
   }
 
 
-  def main(args: Array[String]): Unit = {
 
-    //calentar JVM
 
-    val magnitud = 1024
-    val SecRandom = secuenciaaleatoria(magnitud)
 
-    val o: Oraculo = (s: Seq[Char]) => {
-      SecRandom.containsSlice(s)
+
+
+
+
+
+
+
+
+
+  /*
+def pertenecen(s: Seq[Char], t: Trie): Boolean = {
+  if (s.isEmpty) {
+    t match {
+      case Nodo(_, marcada, _) => marcada
+      case Hoja(_, marcada) => marcada
     }
-
-    val tiempoInicioIngenuo = System.nanoTime()
-    val cadena = reconstruirCadenaIngenuo(alfabeto, magnitud, o)
-    val tiempoFinIngenuo = System.nanoTime()
-    val tiempoIngenuo = (tiempoFinIngenuo - tiempoInicioIngenuo) / 1e6
-
-    val tiempoInicioIngenuoPar = System.nanoTime()
-    val ingenuoPar = reconstruirCadenaIngenuoPar(alfabeto, magnitud, o)
-    val tiempoFinIngenuoPar = System.nanoTime()
-    val tiempoIngenuoPar = (tiempoFinIngenuoPar - tiempoInicioIngenuoPar) / 1e6
-
-    println(s" Cadena de tamano $magnitud por Ingenuo, secuencial y paralelo: $cadena, $ingenuoPar")
-    println(s"Tiempo de ejecucion secuencial: $tiempoIngenuo ms, paralelo: $tiempoIngenuoPar ms.\n")
-
-
-    val tiempoInicioMejorado = System.nanoTime()
-    val cadenaM = reconstruirCadenaMejorado(alfabeto, magnitud, o)
-    val tiempoFinalMejorado = System.nanoTime()
-    val tiempoMejorado = (tiempoFinalMejorado - tiempoInicioMejorado) / 1e6
-    /*
-       val tiempoInicioMejoradoPar = System.nanoTime()
-       val Mpar = reconstruirCadenaMejoradoPar(magnitud, o)
-       val tiempoFinMejoradoPar = System.nanoTime()
-       val tiempoMejoradoPar = (tiempoFinMejoradoPar - tiempoInicioMejoradoPar) / 1e6
-       */
-    println(s" Cadena de tamano $magnitud por Mejorado, secuencial y paralelo: $cadenaM")
-    println(s"Tiempo de ejecucion secuencial: $tiempoMejorado ms, paralelo: ms.\n")
-
-    val tiempoInicioMejoradoPar = System.nanoTime()
-    val Mpar = reconstruirCadenaMejoradoPar(alfabeto, magnitud, o)
-    val tiempoFinMejoradoPar = System.nanoTime()
-    val tiempoMejoradoPar = (tiempoFinMejoradoPar - tiempoInicioMejoradoPar) / 1e6
-
-    println(s" Cadena de tamano $magnitud por Mejorado, secuencial y paralelo: $cadenaM, $Mpar")
-    println(s"Tiempo de ejecucion secuencial: $tiempoMejorado ms, paralelo: $tiempoMejoradoPar ms.\n")
-
-
-    val tiempoInicioTurbo = System.nanoTime()
-    val cadenaT = reconstruirCadenaTurbo(alfabeto, magnitud, o)
-    val tiempoFinTurbo = System.nanoTime()
-    val tiempoTurbo = (tiempoFinTurbo - tiempoInicioTurbo) / 1e6
-
-    val tiempoInicioTurboPar = System.nanoTime()
-    val cadenaTP = reconstruirCadenaTurboPar(alfabeto, magnitud, o)
-    val tiempoFinTurboPar = System.nanoTime()
-    val tiempoTurboPar = (tiempoFinTurboPar - tiempoInicioTurboPar) / 1e6
-
-    println(s" Cadena de tamano $magnitud por Turbo, secuencial y paralelo: $cadenaT, $cadenaTP")
-    println(s"Tiempo de ejecucion secuencial: $tiempoTurbo ms, paralelo: $tiempoTurboPar ms.\n")
-
-
-    val tiempoInicioTurboMejorado = System.nanoTime()
-    val cadenaTM = reconstruirCadenaTurboMejorado(alfabeto, magnitud, o)
-    val tiempoFinTurboMejorado = System.nanoTime()
-    val tiempoTurboMejorado = (tiempoFinTurboMejorado - tiempoInicioTurboMejorado) / 1e6
-
-    val tiempoInicioTurboMejoradoPar = System.nanoTime()
-    val TmejoradoPar = reconstruirCadenaTurboMejoradoPar(alfabeto, magnitud, o)
-    val tiempoFinTurboMejoradoPar = System.nanoTime()
-    val tiempoTurboMejoradoPar = (tiempoFinTurboMejoradoPar - tiempoInicioTurboMejoradoPar) / 1e6
-
-    println(s" Cadena de tamano $magnitud por Turbo Mejorado, secuencial y paralelo: $cadenaTM, $TmejoradoPar")
-    println(s"Tiempo de ejecucion secuencial: $tiempoTurboMejorado ms, paralelo: $tiempoTurboMejoradoPar ms.\n")
-
-
-    val tiempoInicioTurboAcelerado = System.nanoTime()
-    val turboAcelerado = reconstruirCadenaTurboAcelerada(magnitud, o)
-    val tiempoFinTurboAcelerado = System.nanoTime()
-    val tiempoTurboAcelerado = (tiempoFinTurboAcelerado - tiempoInicioTurboAcelerado) / 1e6
-    /*
-      val tiempoInicioTurboAceleradoPar = System.nanoTime()
-      val turboAceleradoPar = recontruirCadenaTurboAceleradaPar(magnitud, o)
-      val tiempoFinTurboAceleradoPar = System.nanoTime()
-      val tiempoTurboAceleradoPar = (tiempoFinTurboAceleradoPar - tiempoInicioTurboAceleradoPar) / 1e6
-      */
-    println(s" Cadena de tamano $magnitud por Turbo Acelerado, secuencial y paralelo: $turboAcelerado")
-    println(s"Tiempo de ejecucion secuencial: $tiempoTurboAcelerado ms, paralelo:  ms.\n")
-
-
-    /*
-
-
-    println(s"Secuencia random: $SecRandom")
-    println(s"Oraculo: $o")
-    println(s"Alfabeto: $alfabeto")
-
-    //Prueba de funcionamiento de la funcion arbolDeSufijos
-    val arbol = arbolDeSufijos(Seq(Seq('a', 'c', 't','g'), Seq('a', 'c')))
-    println(s"Arbol de sufijos: $arbol")
-    println(s"Arbol de sufijos: ${pertenece(Seq('a', 'c', 'g'), arbol)}")
-    println(s"Arbol de sufijos: ${pertenece(Seq('a', 'c', 'g', 't'), arbol)}")
-
-
-
-     */
-
-
+  } else {
+    t match {
+      case Nodo(_, _, hijos) => hijos.exists(h => raiz(h) == s.head && pertenecen(s.tail, h))
+      case Hoja(_, _) => false
+    }
   }
+}
+
+def pertenece(s: String, t: Trie): Boolean = {
+  if (s.isEmpty) {
+    t match {
+      case Hoja(_, marcada) => marcada
+      case _ => false
+    }
+  } else {
+    t match {
+      case Nodo(c, _, hijos) =>
+        hijos.exists(h => raiz(h) == s.head && pertenece(s.tail, h))
+      case _ => false
+    }
+  }
+}
+
+//Funcion adicionar recibe una secuencia s y un trie t y devuelve el trie correspondiente a adicionar s a t
+def adiciona(s: String, t: Trie): Trie = {
+  def adicionar(str: String, trie: Trie): Trie = {
+    if (str.isEmpty) {
+      trie
+    } else {
+      trie match {
+        case Nodo(c, marcada, hijos) =>
+          val (nuevoHijo, nuevosHijos) = hijos.partition(h => raiz(h) == str.head)
+          val actualizadoHijo = nuevoHijo.headOption.map(h => adicionar(str.tail, h)).getOrElse(Hoja(str.head, marcada))
+          Nodo(c, marcada, actualizadoHijo :: nuevosHijos)
+        case Hoja(_, _) =>
+          Nodo('_', false, List(adicionar(str.tail, Hoja('_', true))))
+      }
+    }
+  }
+  adicionar(s, t)
+}
+
+def adicionar(s: Seq[Char], t: Trie): Trie = {
+  if (s.isEmpty) {
+    t match {
+      case Nodo(c, _, hijos) => Nodo(c, true, hijos)
+      case Hoja(c, _) => Hoja(c, true)
+    }
+  } else {
+    t match {
+      case Nodo(c, marcada, hijos) => {
+        val h = hijos.find(h => raiz(h) == s.head)
+        if (h.isEmpty) {
+          Nodo(c, marcada, hijos :+ adicionar(s, Hoja(s.head, false)))
+        } else {
+          Nodo(c, marcada, hijos.map(h => if (raiz(h) == s.head) adicionar(s.tail, h) else h))
+        }
+      }
+      case Hoja(c, marcada) => Nodo(c, marcada, List(adicionar(s.tail, Hoja(s.head, false))))
+    }
+  }
+}
+
+def recontruirCadenaTurboAcelerada(magnitud: Int, o: Oraculo): Seq[Char] = {
+  def reconstruirCadenaTurboAceleradaAux(m: Int, SC: Seq[Seq[Char]]): Seq[Char] = {
+    if (m > magnitud) {
+      SC.find(_.length == magnitud).getOrElse(Seq())    }
+    else {
+      val n = m * 2
+      val SCk = SC.flatMap(subc => alfabeto.map(letra => subc :+ letra)).filter(o)
+      //println(SCk.map(_.mkString))
+      //val t = arbolSufijos(SCk.map(_.mkString))
+      reconstruirCadenaTurboAceleradaAux(m + 1,SCk)
+    }
+  }
+  val SC = reconstruirCadenaTurboAceleradaAux(1, Seq(Seq.empty[Char]))
+  SC
+}
+
+ */
 
 }
