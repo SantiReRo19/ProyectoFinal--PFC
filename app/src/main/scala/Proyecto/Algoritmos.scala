@@ -111,22 +111,6 @@ object Algoritmos {
   * @param s: Seq[Char], t: Trie
   * @return Boolean
    */
-  /*
-  def pertenece(s: Seq[Char], t: Trie): Boolean = {
-    if (s.isEmpty) {
-      t match {
-        case Nodo(_, marca, _) => marca
-        case Hoja(_, marca) => marca
-      }
-    } else {
-      t match {
-        case Nodo(_, _, hijos) => hijos.exists(h => pre.raiz(h) == s.head && pertenece(s.tail, h))
-        case Hoja(_, _) => false
-      }
-    }
-  }
-
-   */
 
   def pertenece(sec: Seq[Char], trie: Trie): Boolean = {
     if (sec.isEmpty) {
@@ -197,40 +181,7 @@ object Algoritmos {
   * @param tamano: Int, o: Oraculo
   * @return Seq[Char]
    */
-  /*
-  def reconstruirCadenaTurboAcelerada(alfabeto: Seq[Char], tamano: Int, o: Oraculo): Seq[Char] = {
-    @tailrec
-    def posiblesSucadenas(n: Int, sec: Seq[Seq[Char]]): Seq[Seq[Char]] = {
-      if (n >= tamano) sec
-      else {
-        val secN = sec.flatMap { s1 =>
-          sec.flatMap { s2 =>
-          Seq(s1 ++ s2)
-          }
-        }
-        val secActual = filtrar(secN, sec, n)
-        val secNFiltrado = secActual.filter(o)
-        posiblesSucadenas(n * 2, secNFiltrado)
-      }
-    }
 
-    def filtrar(cadenaActual: Seq[Seq[Char]], cadenaAnterior: Seq[Seq[Char]], n: Int): Seq[Seq[Char]] = {
-      println(cadenaActual)
-      if (cadenaActual.head.length > 2) {
-        val Sufijos = arbolDeSufijos(cadenaAnterior)
-        cadenaActual.filter { s1 => 0 to s1.length - n forall { i => pertenece(s1.slice(i, i + n), Sufijos) } }
-      } else cadenaActual
-    }
-
-    val Alfabeto2 = alfabeto.map(Seq(_)).filter(o)
-    //transfomar el alfabeto en secuencias de un solo caracter
-    println(Alfabeto2)
-    val SS = posiblesSucadenas(1, Alfabeto2)
-    println(SS)
-    SS.head
-  }
-
-   */
   def reconstruirCadenaTurboAcelerada(n: Int, o: Oraculo): Seq[Char] = {
     def posiblesSucadenas(j: Int, subCadena: Seq[Seq[Char]]): Seq[Seq[Char]] = {
       if (j >= n) subCadena

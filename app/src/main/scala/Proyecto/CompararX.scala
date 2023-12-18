@@ -11,7 +11,7 @@ object CompararX {
     )
 
     //Hace la comparacion con un numero presiso de secuencias
-    val magnitud = 4
+    val magnitud = 8
     val SecRandom = secuenciaaleatoria(magnitud)
     val o: Oraculo = (s: Seq[Char]) => {
       SecRandom.containsSlice(s)
