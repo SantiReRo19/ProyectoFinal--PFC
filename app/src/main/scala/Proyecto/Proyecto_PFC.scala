@@ -194,6 +194,19 @@ object Proyecto_PFC {
     }
   }
 
+  def pertenecen(s: Seq[Char], t: Trie): Boolean = {
+    if (s.isEmpty) {
+      t match {
+        case Nodo(_, marcada, _) => marcada
+        case Hoja(_, marcada) => marcada
+      }
+    } else {
+      t match {
+        case Nodo(_, _, hijos) => hijos.exists(h => raiz(h) == s.head && pertenecen(s.tail, h))
+        case Hoja(_, _) => false
+      }
+    }
+  }
   def pertenece(s: String, t: Trie): Boolean = {
     if (s.isEmpty) {
       t match {
@@ -253,8 +266,6 @@ object Proyecto_PFC {
   def arbolSufijos(secuencias: Seq[String]): Trie = {
     secuencias.foldLeft(Hoja('_', false): Trie)((t, s) => adicionar(s, t))
   }
-
-
 
 
   def recontruirCadenaTurboAcelerada(magnitud: Int, o: Oraculo): Seq[Char] = {
