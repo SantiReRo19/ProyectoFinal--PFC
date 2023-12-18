@@ -16,16 +16,6 @@ object CompararX {
     val o: Oraculo = (s: Seq[Char]) => {
       SecRandom.containsSlice(s)
     }
-    //funcion: (Seq[Char],
-    def comparacionAcelerada(funcion: (Int, Oraculo) => Seq[Char], name: String): Unit = {
-      val tiempoInicio = System.nanoTime()
-      val resultado = funcion(magnitud, o)
-      val tiempoFin = System.nanoTime()
-      val tiempo = (tiempoFin - tiempoInicio) / 1e6
-      println(name)
-      println("Tiempo: " + tiempo + " ms")
-      println("Resultado: " + resultado)
-    }
 
     println("COMPARACIONES CON UNA SOLA SECUENCIA:")
     println("Secuencia: " + SecRandom)
