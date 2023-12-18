@@ -1,6 +1,6 @@
 package Proyecto
 
-import Proyecto.Proyecto_PFC.{Benchmark, Oraculo, reconstruirCadenaIngenuo, reconstruirCadenaIngenuoPar, reconstruirCadenaMejorado, reconstruirCadenaMejoradoPar, reconstruirCadenaTurbo, reconstruirCadenaTurboAcelerada, reconstruirCadenaTurboAceleradaPar, reconstruirCadenaTurboMejorado, reconstruirCadenaTurboMejoradoPar, reconstruirCadenaTurboPar, secuenciaaleatoria}
+import Proyecto.Algoritmos.{Benchmark, Oraculo, reconstruirCadenaIngenuo, reconstruirCadenaIngenuoPar, reconstruirCadenaMejorado, reconstruirCadenaMejoradoPar, reconstruirCadenaTurbo, reconstruirCadenaTurboAcelerada, reconstruirCadenaTurboAceleradaPar, reconstruirCadenaTurboMejorado, reconstruirCadenaTurboMejoradoPar, reconstruirCadenaTurboPar, secuenciaaleatoria}
 import org.scalameter.{Warmer, withWarmer}
 
 object Comparar {
@@ -57,50 +57,4 @@ object Comparar {
       println("Tiempo Turbo Acelerado Secuencial: " + tiempoTurboAcelerado + " ms  " + tiempoTurboAceleradoPar + " ms")
     }
 
-
-    /*
-    print("\n")
-    print("Comparacion mejorado y mejorado par: \n")
-    for {
-      i <- 1 to 10
-      m: Oraculo = (s: Seq[Char]) => {
-        secuenciaaleatoria(math.pow(2, i).toInt).containsSlice(s)
-      }
-    } yield (println("Tamano de la secuencia: " + math.pow(2, i).toInt +
-      "\nTiempo secuencial, Paralelo, aceleracion: " + Benchmark.compararAlgoritmos(reconstruirCadenaMejorado, reconstruirCadenaMejoradoPar)(alfabeto, math.pow(2, i).toInt, m)))
-
-    print("\n")
-    print("Comparacion turbo y turbo par: \n")
-    for {
-      i <- 1 to 10
-      m: Oraculo = (s: Seq[Char]) => {
-        secuenciaaleatoria(math.pow(2, i).toInt).containsSlice(s)
-      }
-    } yield (println("Tamano de la secuencia: " + math.pow(2, i).toInt +
-      "\nTiempo secuencial, Paralelo, aceleracion: " + Benchmark.compararAlgoritmos(reconstruirCadenaTurbo, reconstruirCadenaTurboPar)(alfabeto, math.pow(2, i).toInt, m)))
-
-    print("\n")
-    print("Comparacion turbo mejorado y turbo mejorado par: \n")
-    for {
-      i <- 1 to 10
-      m: Oraculo = (s: Seq[Char]) => {
-        secuenciaaleatoria(math.pow(2, i).toInt).containsSlice(s)
-      }
-    } yield (println("Tamano de la secuencia: " + math.pow(2, i).toInt +
-      "\nTiempo secuencial, Paralelo, aceleracion: " + Benchmark.compararAlgoritmos(reconstruirCadenaTurboMejorado, reconstruirCadenaTurboMejoradoPar)(alfabeto, math.pow(2, i).toInt, m)))
-/*
-    print("\n")
-    print("Comparacion turbo acelerada y turbo acelerada par: \n")
-    for {
-      i <- 1 to 10
-      m: Oraculo = (s: Seq[Char]) => {
-        secuenciaaleatoria(math.pow(2, i).toInt).containsSlice(s)
-      }
-    } yield (println("Tamano de la secuencia: " + math.pow(2, i).toInt +
-      "\nTiempo secuencial, Paralelo, aceleracion: " + Benchmark.compararAlgoritmos(reconstruirCadenaTurboAcelerada, reconstruirCadenaTurboAceleradaPar)(alfabeto, math.pow(2, i).toInt, m)))
-*/
-  }
-
-
-     */
-}}
+  }}

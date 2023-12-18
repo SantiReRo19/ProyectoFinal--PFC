@@ -12,7 +12,7 @@ import java.util.concurrent.{ForkJoinPool, RecursiveTask}
 import scala.annotation.tailrec
 import scala.util.Random
 
-object Proyecto_PFC {
+object Algoritmos {
 
 //Definimos el alfabeto y el tipo Oraculo
   val alfabeto = Seq('a', 'c', 'g', 't')
@@ -25,6 +25,12 @@ object Proyecto_PFC {
   }
 
   //Implementaciones secuenciales
+
+  /*
+  * Funcion reconstruirCadenaIngenuo
+  * @param alfabeto: Seq[Char], longitud: Int, o: Oraculo
+  * @return Seq[Char]
+  */
   def reconstruirCadenaIngenuo(alfabeto: Seq[Char], longitud: Int, o: Oraculo): Seq[Char] = {
     def CadCandidatas(alfabeto: Seq[Char], longitud: Int): Seq[Seq[Char]] = {
       if (longitud == 0) {
@@ -41,6 +47,11 @@ object Proyecto_PFC {
     }
   }
 
+  /*
+  * Funcion reconstruirCadenaMejorado
+  * @param alfabeto: Seq[Char], longitud: Int, o: Oraculo
+  * @return Seq[Char]
+   */
   def reconstruirCadenaMejorado(alfabeto: Seq[Char], longitud: Int, o: Oraculo): Seq[Char] = {
     def subcadenas_candidatas(m: Int, SC: Seq[Seq[Char]]): Seq[Seq[Char]] = {
       if (m <= longitud) subcadenas_candidatas(m + 1, SC.flatMap(subc => alfabeto.map(letra => subc :+ letra)).filter(o))
@@ -51,6 +62,12 @@ object Proyecto_PFC {
     val SC = subcadenas_candidatas(1, Seq(Seq()))
     SC.find(longitud == _.length).getOrElse(Seq())
   }
+
+  /*
+  * Funcion reconstruirCadenaTurbo
+  * @param alfabeto: Seq[Char], magnitud: Int, o: Oraculo
+  * @return Seq[Char]
+   */
 
   def reconstruirCadenaTurbo(alfabeto: Seq[Char], magnitud: Int, o: Oraculo): Seq[Char] = {
     def subcadenas_candidatas(m: Int, n: Int, SC: Seq[Seq[Char]]): Seq[Seq[Char]] = {
@@ -68,6 +85,11 @@ object Proyecto_PFC {
 
   }
 
+  /*
+  * Funcion reconstruirCadenaTurboMejorado
+  * @param alfabeto: Seq[Char], magnitud: Int, o: Oraculo
+  * @return Seq[Char]
+   */
   def reconstruirCadenaTurboMejorado(alfabeto: Seq[Char], magnitud: Int, o: Oraculo): Seq[Char] = {
 
     def subcadenas_candidatas(m: Int, n: Int, SC: Seq[Seq[Char]]): Seq[Seq[Char]] = {
@@ -84,6 +106,11 @@ object Proyecto_PFC {
 
   }
 
+  /*
+  * Funcion pertenece
+  * @param s: Seq[Char], t: Trie
+  * @return Boolean
+   */
   def pertenece(s: Seq[Char], t: Trie): Boolean = {
     if (s.isEmpty) {
       t match {
@@ -97,6 +124,12 @@ object Proyecto_PFC {
       }
     }
   }
+
+  /*
+  * Funcion adicionar
+  * @param s: Seq[Char], trie: Trie
+  * @return Trie
+   */
   def adicionar(s: Seq[Char], trie: Trie): Trie = {
     def crearRama(s: Seq[Char]): Trie = {
       s match {
@@ -129,9 +162,20 @@ object Proyecto_PFC {
     añadirRama(trie, Seq.empty[Char], s)
   }
 
+  /*
+  * Funcion arbolDeSufijos
+  * @param sec: Seq[Seq[Char]]
+  * @return Trie
+   */
   def arbolDeSufijos(sec: Seq[Seq[Char]]): Trie  = {
     sec.foldLeft(Nodo('_', false, List()): Trie)((trie, sc) => adicionar(sc, trie))
   }
+
+  /*
+  * Funcion reconstruirCadenaTurboAcelerada
+  * @param tamano: Int, o: Oraculo
+  * @return Seq[Char]
+   */
   def reconstruirCadenaTurboAcelerada(tamano: Int, o: Oraculo): Seq[Char] = {
     @tailrec
     def posiblesSucadenas(n: Int, sec: Seq[Seq[Char]]): Seq[Seq[Char]] = {
@@ -163,6 +207,12 @@ object Proyecto_PFC {
 
   //Implementaciones paralelas
 
+
+  /*
+  * Funcion reconstruirCadenaIngenuoPar
+  * @param alfabeto: Seq[Char], longitud: Int, o: Oraculo
+  * @return Seq[Char]
+   */
   def reconstruirCadenaIngenuoPar(alfabeto: Seq[Char], longitud: Int, o: Oraculo): Seq[Char] = {
     def CadCandidatas(alfabeto: Seq[Char], longitud: Int): Seq[Seq[Char]] = {
       if (longitud == 0) {
@@ -183,6 +233,11 @@ object Proyecto_PFC {
     }
   }
 
+  /*
+  * Funcion reconstruirCadenaMejoradoPar
+  * @param alfabeto: Seq[Char], longitud: Int, o: Oraculo
+  * @return Seq[Char]
+   */
   def reconstruirCadenaMejoradoPar(alfabeto: Seq[Char], longitud: Int, o: Oraculo): Seq[Char] = {
     def subcadenas_candidatasPar(m: Int, SC: Seq[Seq[Char]]): Seq[Seq[Char]] = {
       if (m <= longitud) {
@@ -199,6 +254,11 @@ object Proyecto_PFC {
     SC.find(_.length == longitud).getOrElse(Seq())
   }
 
+  /*
+  * Funcion reconstruirCadenaTurboPar
+  * @param alfabeto: Seq[Char], magnitud: Int, o: Oraculo
+  * @return Seq[Char]
+   */
   def reconstruirCadenaTurboPar(alfabeto: Seq[Char], magnitud: Int, oraculo: Oraculo): Seq[Char] = {
     class Subcadenas(m: Int, n: Int, SC: Seq[Seq[Char]], alfabeto: Seq[Char], magnitud: Int, oraculo: Oraculo) extends RecursiveTask[Seq[Seq[Char]]] {
       override def compute(): Seq[Seq[Char]] = {
@@ -221,6 +281,11 @@ object Proyecto_PFC {
   }
 
 
+  /*
+  * Funcion reconstruirCadenaTurboMejoradoPar
+  * @param alfabeto: Seq[Char], magnitud: Int, o: Oraculo
+  * @return Seq[Char]
+   */
   def reconstruirCadenaTurboMejoradoPar(alfabeto: Seq[Char], magnitud: Int, oraculo: Oraculo): Seq[Char] = {
     class SubcadenasTask(m: Int, n: Int, SC: Seq[Seq[Char]], alfabeto: Seq[Char], magnitud: Int, oraculo: Oraculo) extends RecursiveTask[Seq[Seq[Char]]] {
       override def compute(): Seq[Seq[Char]] = {
@@ -241,6 +306,11 @@ object Proyecto_PFC {
     result.find(_.length == magnitud).getOrElse(Seq())
   }
 
+  /*
+  * Funcion reconstruirCadenaTurboAceleradaPar
+  * @param tamano: Int, o: Oraculo
+  * @return Seq[Char]
+   */
   def reconstruirCadenaTurboAceleradaPar(tamano: Int, o: Oraculo): Seq[Char] = {
 
     @tailrec
@@ -282,6 +352,13 @@ object Proyecto_PFC {
   }
 
   //Comparacion
+
+  /*
+  *Objeto Benchmark
+  * Funcion compararAlgoritmos
+  * @param Funcion1: (Seq[Char], Int, Oraculo) => Seq[Char], Funcion2: (Seq[Char], Int, Oraculo) => Seq[Char]
+  * @return (Double, Double, Double)
+   */
   object Benchmark {
 
     def compararAlgoritmos(Funcion1: (Seq[Char], Int, Oraculo) => Seq[Char], Funcion2: (Seq[Char], Int, Oraculo) => Seq[Char])(alfabeto: Seq[Char], magnitud: Int, o: Oraculo): (Double, Double, Double) = {
