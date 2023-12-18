@@ -90,18 +90,7 @@ object Proyecto_PFC {
 
 
 
-  def raiz(t: Trie): Char =
-    t match {
-      case Nodo(c, _, _) => c
-      case Hoja(c, _) => c
-    }
 
-  def cabezas(t: Trie): Seq[Char] = {
-    t match {
-      case Nodo(_, _, lt) => lt.map(t => raiz(t))
-      case Hoja(c, _) => Seq(c)
-    }
-  }
 
   def pertenecen(s: Seq[Char], t: Trie): Boolean = {
     if (s.isEmpty) {
